@@ -59,6 +59,9 @@ class AMapWidget extends StatefulWidget {
   /// 地图上显示的Marker
   final Set<Marker> markers;
 
+  /// 地图上显示的Flutter原生Marker
+  final List<FlutterMarker> flutterMarkers;
+
   /// 地图上显示的polyline
   final Set<Polyline> polylines;
 
@@ -69,7 +72,7 @@ class AMapWidget extends StatefulWidget {
   final MapCreatedCallback? onMapCreated;
 
   /// 相机视角持续移动的回调
-  final ArgumentCallback<CameraPosition>? onCameraMove;
+  ArgumentCallback<CameraPosition>? onCameraMove;
 
   /// 相机视角移动结束的回调
   final ArgumentCallback<CameraPosition>? onCameraMoveEnd;
@@ -92,7 +95,8 @@ class AMapWidget extends StatefulWidget {
   ///高德合规声明配置
   ///
   /// 高德SDK合规使用方案请参考：https://lbs.amap.com/news/sdkhgsy
-  final AMapPrivacyStatement ?privacyStatement;
+  final AMapPrivacyStatement? privacyStatement;
+
   /// 创建一个展示高德地图的widget
   ///
   /// 如果使用的高德地图SDK的版本是8.1.0及以上版本，
@@ -105,11 +109,12 @@ class AMapWidget extends StatefulWidget {
   /// 高德SDK合规使用方案请参考：https://lbs.amap.com/news/sdkhgsy
   ///
   /// [AssertionError] will be thrown if [initialCameraPosition] is null;
-  const AMapWidget({
+  AMapWidget({
     Key? key,
     this.privacyStatement,
     this.apiKey,
-    this.initialCameraPosition = const CameraPosition(target: LatLng(39.909187, 116.397451), zoom: 10),
+    this.initialCameraPosition =
+        const CameraPosition(target: LatLng(39.909187, 116.397451), zoom: 10),
     this.mapType = MapType.normal,
     this.buildingsEnabled = true,
     this.compassEnabled = false,
@@ -136,6 +141,7 @@ class AMapWidget extends StatefulWidget {
     this.markers = const <Marker>{},
     this.polylines = const <Polyline>{},
     this.polygons = const <Polygon>{},
+    this.flutterMarkers = const <FlutterMarker>[],
   }) : super(key: key);
 
   ///
@@ -147,13 +153,14 @@ class _MapState extends State<AMapWidget> {
   Map<String, Marker> _markers = <String, Marker>{};
   Map<String, Polyline> _polylines = <String, Polyline>{};
   Map<String, Polygon> _polygons = <String, Polygon>{};
-
+  AmapMarkerController _markerController = AmapMarkerController();
   final Completer<AMapController> _controller = Completer<AMapController>();
   late _AMapOptions _mapOptions;
 
   @override
   Widget build(BuildContext context) {
     AMapUtil.init(context);
+    widget.onCameraMove = _onCameraMove;
     final Map<String, dynamic> creationParams = <String, dynamic>{
       'privacyStatement': widget.privacyStatement?.toMap(),
       'apiKey': widget.apiKey?.toMap(),
@@ -168,7 +175,28 @@ class _MapState extends State<AMapWidget> {
       widget.gestureRecognizers,
       onPlatformViewCreated,
     );
-    return mapView;
+    return LayoutBuilder(builder: (_, BoxConstraints constraints) {
+      if (constraints.maxWidth != 0) {
+        _markerController.mapWidth = constraints.maxWidth;
+        _markerController.mapHeight = constraints.maxHeight;
+      }
+      return SizedBox(
+        width: _markerController.mapWidth,
+        height: _markerController.mapHeight,
+        child: Stack(
+          children: [
+            mapView,
+            SizedBox(
+              width: _markerController.mapWidth,
+              height: _markerController.mapHeight,
+              child: MarkersStack(
+                controller: _markerController,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override
@@ -178,7 +206,13 @@ class _MapState extends State<AMapWidget> {
     _markers = keyByMarkerId(widget.markers);
     _polygons = keyByPolygonId(widget.polygons);
     _polylines = keyByPolylineId(widget.polylines);
+    _markerController.setMarkers(widget.flutterMarkers);
     print('initState AMapWidget');
+  }
+
+  void _onCameraMove(CameraPosition? camera) async {
+    await _markerController.updateViewport(camera);
+    _markerController.updateMarkers();
   }
 
   @override
@@ -216,7 +250,9 @@ class _MapState extends State<AMapWidget> {
       widget.initialCameraPosition,
       this,
     );
+    _markerController.controller = controller;
     _controller.complete(controller);
+    controller.moveCamera(CameraUpdate.scrollBy(1, 1));
     final MapCreatedCallback? _onMapCreated = widget.onMapCreated;
     if (_onMapCreated != null) {
       _onMapCreated(controller);
@@ -268,19 +304,22 @@ class _MapState extends State<AMapWidget> {
   void _updateMarkers() async {
     final AMapController controller = await _controller.future;
     // ignore: unawaited_futures
-    controller._updateMarkers(MarkerUpdates.from(_markers.values.toSet(), widget.markers));
+    controller._updateMarkers( MarkerUpdates.from(_markers.values.toSet(), widget.markers));
     _markers = keyByMarkerId(widget.markers);
+    _markerController.setMarkers(widget.flutterMarkers);
   }
 
   void _updatePolylines() async {
     final AMapController controller = await _controller.future;
-    controller._updatePolylines(PolylineUpdates.from(_polylines.values.toSet(), widget.polylines));
+    controller._updatePolylines(
+        PolylineUpdates.from(_polylines.values.toSet(), widget.polylines));
     _polylines = keyByPolylineId(widget.polylines);
   }
 
   void _updatePolygons() async {
     final AMapController controller = await _controller.future;
-    controller._updatePolygons(PolygonUpdates.from(_polygons.values.toSet(), widget.polygons));
+    controller._updatePolygons(
+        PolygonUpdates.from(_polygons.values.toSet(), widget.polygons));
     _polygons = keyByPolygonId(widget.polygons);
   }
 }
@@ -400,7 +439,8 @@ class _AMapOptions {
     final Map<String, dynamic> prevOptionsMap = toMap();
 
     return newOptions.toMap()
-      ..removeWhere((String key, dynamic value) => (_checkChange(key, prevOptionsMap[key], value)));
+      ..removeWhere((String key, dynamic value) =>
+          (_checkChange(key, prevOptionsMap[key], value)));
   }
 
   bool _checkChange(String key, dynamic preValue, dynamic newValue) {

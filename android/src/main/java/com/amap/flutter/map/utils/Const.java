@@ -28,7 +28,9 @@ public class Const {
             METHOD_MAP_MOVE_CAMERA,
             METHOD_MAP_SET_RENDER_FPS,
             METHOD_MAP_TAKE_SNAPSHOT,
-            METHOD_MAP_CLEAR_DISK};
+            METHOD_MAP_CLEAR_DISK,
+            METHOD_MAP_GET_VISIBLE_REGION,
+    };
 
 
     /**
