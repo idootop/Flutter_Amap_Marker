@@ -234,7 +234,24 @@
         [weakSelf.mapView clearDisk];
         result(nil);
     }];
-}
+    [self.channel addMethodName:@"map#getVisibleRegion" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
+        CGPoint point = CGPointMake(0,0);
+        MACoordinateRegion region = [weakSelf.mapView region];
+        CLLocationCoordinate2D top = [weakSelf.mapView convertPoint:point toCoordinateFromView:weakSelf.mapView];
+        if (region.span.longitudeDelta > 180) {
+            region.span.longitudeDelta = 360 - region.span.longitudeDelta;
+        }
+        result(@{
+            @"southwest":@[
+                    @(top.latitude-region.span.latitudeDelta),
+                    @(region.center.longitude-region.span.longitudeDelta/2),
+            ],
+            @"northeast":@[
+                    @(top.latitude),
+                    @(region.center.longitude+region.span.longitudeDelta/2),
+            ],
+        });
+    }];}
 
 //MARK: MAMapViewDelegate
 

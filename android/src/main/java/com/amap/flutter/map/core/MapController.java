@@ -145,6 +145,12 @@ public class MapController
                     result.success(null);
                 }
                 break;
+            case Const.METHOD_MAP_GET_VISIBLE_REGION:
+                if (null != amap) {
+                    LatLngBounds visibleBounds = amap.getProjection().getVisibleRegion().latLngBounds;
+                    result.success(ConvertUtil.latLngBoundsToMap(visibleBounds));
+                }
+                break;
             default:
                 LogUtil.w(CLASS_NAME, "onMethodCall not find methodId:" + call.method);
                 break;

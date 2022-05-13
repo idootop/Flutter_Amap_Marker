@@ -251,14 +251,14 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
     return channel(mapId).invokeMethod<Uint8List>('map#takeSnapshot');
   }
 
-  //获取地图审图号（普通地图）
+  ///获取地图审图号（普通地图）
   Future<String?> getMapContentApprovalNumber({
     required int mapId,
   }) {
     return channel(mapId).invokeMethod<String>('map#contentApprovalNumber');
   }
 
-  //获取地图审图号（卫星地图）
+  ///获取地图审图号（卫星地图）
   Future<String?> getSatelliteImageApprovalNumber({
     required int mapId,
   }) {
@@ -270,5 +270,12 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
     required int mapId,
   }) {
     return channel(mapId).invokeMethod<void>('map#clearDisk');
+  }
+
+  ///获取地图当前屏幕经纬度边界
+  Future<Map?> getVisibleRegion({
+    required int mapId,
+  }) {
+    return channel(mapId).invokeMethod<Map>('map#getVisibleRegion');
   }
 }

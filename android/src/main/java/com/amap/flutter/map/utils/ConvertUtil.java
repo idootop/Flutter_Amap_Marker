@@ -180,6 +180,16 @@ public class ConvertUtil {
         return data;
     }
 
+    public static Object latLngBoundsToMap(LatLngBounds bounds) {
+        if (bounds == null) {
+            return null;
+        }
+        final Map<String, Object> data = new HashMap<>();
+        data.put("northeast", latLngToList(bounds.northeast));
+        data.put("southwest", latLngToList(bounds.southwest));
+        return data;
+    }
+
     /**
      * 转换AMapOptions
      *

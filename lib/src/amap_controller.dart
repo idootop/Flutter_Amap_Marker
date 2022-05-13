@@ -139,4 +139,9 @@ class AMapController {
   Future<void> clearDisk() {
     return _methodChannel.clearDisk(mapId: mapId);
   }
+
+  /// 获取地图当前屏幕经纬度边界
+  Future<Map?> getVisibleRegion() async {
+    return _methodChannel.getVisibleRegion(mapId: mapId);
+  }
 }
