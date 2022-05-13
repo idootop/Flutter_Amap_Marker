@@ -1,0 +1,29 @@
+name: amap_flutter_map
+description: 高德地图SDK Flutter插件
+version: 3.0.0
+homepage: https://lbs.amap.com/
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=1.20.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_plugin_android_lifecycle: ^2.0.1
+  plugin_platform_interface: ^2.0.0
+  stream_transform: ^2.0.0
+  
+  amap_flutter_base: ^3.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.amap.flutter.map
+        pluginClass: AMapFlutterMapPlugin
+      ios:
+        pluginClass: AMapFlutterMapPlugin
+
+  assets:
+    - res/
