@@ -251,7 +251,17 @@
                     @(region.center.longitude+region.span.longitudeDelta/2),
             ],
         });
-    }];}
+    }];
+    [self.channel addMethodName:@"map#screenLocation" withHandler:^(FlutterMethodCall * _Nonnull call, FlutterResult  _Nonnull result) {
+        double latitude = [call.arguments[@"latitude"] doubleValue];
+        double longitude = [call.arguments[@"longitude"] doubleValue];
+        CGPoint position = [weakSelf.mapView convertCoordinate:CLLocationCoordinate2DMake(latitude, longitude) toPointToView:weakSelf.mapView];
+        result(@{
+            @"x":@(position.x),
+            @"y":@(position.y),
+        });
+    }];
+}
 
 //MARK: MAMapViewDelegate
 

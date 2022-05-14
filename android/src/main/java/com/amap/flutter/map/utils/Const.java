@@ -19,6 +19,7 @@ public class Const {
     public static final String METHOD_MAP_TAKE_SNAPSHOT = "map#takeSnapshot";
     public static final String METHOD_MAP_CLEAR_DISK = "map#clearDisk";
     public static final String METHOD_MAP_GET_VISIBLE_REGION = "map#getVisibleRegion";
+    public static final String METHOD_MAP_GET_SCREEN_LOCATION= "map#screenLocation";
 
     public static final String[] METHOD_ID_LIST_FOR_MAP = {
             METHOD_MAP_CONTENT_APPROVAL_NUMBER,
@@ -30,6 +31,7 @@ public class Const {
             METHOD_MAP_TAKE_SNAPSHOT,
             METHOD_MAP_CLEAR_DISK,
             METHOD_MAP_GET_VISIBLE_REGION,
+            METHOD_MAP_GET_SCREEN_LOCATION,
     };
 
 

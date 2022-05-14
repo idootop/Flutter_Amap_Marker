@@ -1,6 +1,7 @@
 package com.amap.flutter.map.core;
 
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.location.Location;
 
 
@@ -149,6 +150,13 @@ public class MapController
                 if (null != amap) {
                     LatLngBounds visibleBounds = amap.getProjection().getVisibleRegion().latLngBounds;
                     result.success(ConvertUtil.latLngBoundsToMap(visibleBounds));
+                }
+                break;
+            case Const.METHOD_MAP_GET_SCREEN_LOCATION:
+                if (null != amap) {
+                    LatLng location = new LatLng(call.argument("latitude"), call.argument("longitude"));
+                    Point position = amap.getProjection().toScreenLocation(location);
+                    result.success(ConvertUtil.pointToMap(position));
                 }
                 break;
             default:

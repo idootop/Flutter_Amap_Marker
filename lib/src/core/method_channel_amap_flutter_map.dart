@@ -187,8 +187,8 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
         }
         break;
       case 'map#onTap':
-        _mapEventStreamController
-            .add(MapTapEvent(mapId, LatLng.fromJson(call.arguments['latLng'])!));
+        _mapEventStreamController.add(
+            MapTapEvent(mapId, LatLng.fromJson(call.arguments['latLng'])!));
         break;
       case 'map#onLongPress':
         _mapEventStreamController.add(MapLongPressEvent(
@@ -213,8 +213,8 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
         break;
       case 'map#onPoiTouched':
         try {
-          _mapEventStreamController.add(
-              MapPoiTouchEvent(mapId, AMapPoi.fromJson(call.arguments['poi'])!));
+          _mapEventStreamController.add(MapPoiTouchEvent(
+              mapId, AMapPoi.fromJson(call.arguments['poi'])!));
         } catch (e) {
           print('map#onPoiTouched error===>' + e.toString());
         }
@@ -277,5 +277,14 @@ class MethodChannelAMapFlutterMap implements AMapFlutterPlatform {
     required int mapId,
   }) {
     return channel(mapId).invokeMethod<Map>('map#getVisibleRegion');
+  }
+
+  /// 获取屏幕点坐标
+  Future<Map?> screenLocation(LatLng location, {required int mapId}) async {
+    return channel(mapId)
+        .invokeMethod<Map>('map#screenLocation', <String, dynamic>{
+      'latitude': location.latitude,
+      'longitude': location.longitude,
+    });
   }
 }

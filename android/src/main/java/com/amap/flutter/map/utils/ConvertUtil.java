@@ -189,6 +189,16 @@ public class ConvertUtil {
         data.put("southwest", latLngToList(bounds.southwest));
         return data;
     }
+    
+    public static Object pointToMap(Point point) {
+        if (point == null) {
+            return null;
+        }
+        final Map<String, Object> data = new HashMap<>();
+        data.put("x", point.x);
+        data.put("y", point.y);
+        return data;
+    }
 
     /**
      * 转换AMapOptions

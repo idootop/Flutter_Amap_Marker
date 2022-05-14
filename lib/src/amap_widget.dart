@@ -3,6 +3,7 @@ part of amap_flutter_map;
 typedef void MapCreatedCallback(AMapController controller);
 
 ///用于展示高德地图的Widget
+// ignore: must_be_immutable
 class AMapWidget extends StatefulWidget {
   ///高德开放平台的key
   ///
@@ -175,28 +176,14 @@ class _MapState extends State<AMapWidget> {
       widget.gestureRecognizers,
       onPlatformViewCreated,
     );
-    return LayoutBuilder(builder: (_, BoxConstraints constraints) {
-      if (constraints.maxWidth != 0) {
-        _markerController.mapWidth = constraints.maxWidth;
-        _markerController.mapHeight = constraints.maxHeight;
-      }
-      return SizedBox(
-        width: _markerController.mapWidth,
-        height: _markerController.mapHeight,
-        child: Stack(
-          children: [
-            mapView,
-            SizedBox(
-              width: _markerController.mapWidth,
-              height: _markerController.mapHeight,
-              child: MarkersStack(
-                controller: _markerController,
-              ),
-            ),
-          ],
+    return Stack(
+      children: [
+        mapView,
+        MarkersStack(
+          controller: _markerController,
         ),
-      );
-    });
+      ],
+    );
   }
 
   @override
@@ -211,7 +198,6 @@ class _MapState extends State<AMapWidget> {
   }
 
   void _onCameraMove(CameraPosition? camera) async {
-    await _markerController.updateViewport(camera);
     _markerController.updateMarkers();
   }
 
@@ -304,7 +290,8 @@ class _MapState extends State<AMapWidget> {
   void _updateMarkers() async {
     final AMapController controller = await _controller.future;
     // ignore: unawaited_futures
-    controller._updateMarkers( MarkerUpdates.from(_markers.values.toSet(), widget.markers));
+    controller._updateMarkers(
+        MarkerUpdates.from(_markers.values.toSet(), widget.markers));
     _markers = keyByMarkerId(widget.markers);
     _markerController.setMarkers(widget.flutterMarkers);
   }
